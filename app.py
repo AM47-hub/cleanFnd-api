@@ -1,5 +1,12 @@
+from flask import Flask, request, make_response
+import re
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
+import os
+
+app = Flask(__name__)
+
+@app.route('/process', methods=['POST'])
 
 def clean_fnd_logic(fnd_list, status_date_str):
     status_date = datetime.fromisoformat(status_date_str)
@@ -24,6 +31,12 @@ def clean_fnd_logic(fnd_list, status_date_str):
 def handle_request(data):
     fnd_list = data.get("fndList", [])
     status_date = data.get("statusDate")
-    
-    result = clean_fnd_logic(fnd_list, status_date)
-    return json.dumps(result)
+
+        return make_response(json.dumps(results), 200, {"Content-Type": "application/json"})
+        # Silent: return make_response(json.dumps(debug_report), 200, {"Content-Type": "application/json"})
+
+    except Exception as e:
+        return make_response(json.dumps([{"fatal_crash": str(e)}]), 200)
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
